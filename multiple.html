@@ -6,6 +6,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
+    /* [Styling same as before, unchanged] */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f8f9fa;
@@ -125,11 +126,11 @@
   </header>
 
   <div id="controls">
-    <select id="countrySelect" aria-label="Select country to add">
+    <select id="countrySelect">
       <option value="">-- Select Country to Add --</option>
     </select>
 
-    <select id="indicatorSelect" aria-label="Select indicator">
+    <select id="indicatorSelect">
       <option value="NY.GDP.MKTP.KD.ZG">GDP Growth (%)</option>
       <option value="NY.GDP.PCAP.KD.ZG">GDP per capita Growth (%)</option>
       <option value="FP.CPI.TOTL.ZG">Inflation (% annual)</option>
@@ -137,14 +138,14 @@
       <option value="SP.POP.GROW">Population Growth (%)</option>
       <option value="NY.GDP.MKTP.CD">GDP (current US$)</option>
       <option value="SP.POP.TOTL">Total Population</option>
-      <option value="NE.EXP.GNFS.CD">Exports of goods and services (current US$)</option>
-      <option value="NE.IMP.GNFS.CD">Imports of goods and services (current US$)</option>
+      <option value="NE.EXP.GNFS.CD">Exports (current US$)</option>
+      <option value="NE.IMP.GNFS.CD">Imports (current US$)</option>
     </select>
 
-    <input type="number" id="startYear" placeholder="Start Year" min="1960" max="2024" value="2000" aria-label="Start Year" />
-    <input type="number" id="endYear" placeholder="End Year" min="1960" max="2024" value="2023" aria-label="End Year" />
+    <input type="number" id="startYear" placeholder="Start Year" min="1960" max="2024" value="2000" />
+    <input type="number" id="endYear" placeholder="End Year" min="1960" max="2024" value="2023" />
 
-    <select id="chartType" aria-label="Select chart type">
+    <select id="chartType">
       <option value="line">Line</option>
       <option value="bar">Bar</option>
       <option value="scatter">Scatter</option>
@@ -155,16 +156,14 @@
     <button id="downloadExcelBtn">⬇️ Download Excel</button>
   </div>
 
-  <div id="selectedCountries" aria-live="polite" aria-label="Selected countries"></div>
+  <div id="selectedCountries"></div>
 
   <canvas id="dataChart"></canvas>
 
-  <a href="single.html" class="nav-single" aria-label="Navigate to single country view page">
-    ➔ Go to Single Country View
-  </a>
+  <a href="single.html" class="nav-single">➔ Go to Single Country View</a>
 
   <footer>
-    <p>© Econlens Data Lab – Data sourced from World Bank. <br />Disclaimer: Data accuracy depends on the source. Use for academic and research purposes only.</p>
+    <p>© Econlens Data Lab – Data sourced from World Bank. <br />Disclaimer: For academic and research purposes only.</p>
   </footer>
 
   <script>
@@ -174,20 +173,16 @@
     let excelData = [];
 
     async function populateCountries() {
-      try {
-        const res = await fetch('https://api.worldbank.org/v2/country?format=json&per_page=300');
-        const json = await res.json();
-        countriesList = json[1].filter(c => c.region.id !== "NA").sort((a, b) => a.name.localeCompare(b.name));
-        const select = document.getElementById('countrySelect');
-        countriesList.forEach(c => {
-          const option = document.createElement('option');
-          option.value = c.id;
-          option.textContent = c.name;
-          select.appendChild(option);
-        });
-      } catch (e) {
-        alert("Failed to load countries data.");
-      }
+      const res = await fetch('https://api.worldbank.org/v2/country?format=json&per_page=300');
+      const json = await res.json();
+      countriesList = json[1].filter(c => c.region.id !== "NA").sort((a, b) => a.name.localeCompare(b.name));
+      const select = document.getElementById('countrySelect');
+      countriesList.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.id;
+        option.textContent = c.name;
+        select.appendChild(option);
+      });
     }
 
     function renderSelectedCountries() {
@@ -198,8 +193,7 @@
         chip.className = 'country-chip';
         chip.textContent = c.name;
         const btn = document.createElement('button');
-        btn.setAttribute('aria-label', `Remove ${c.name}`);
-        btn.innerHTML = '×';
+        btn.textContent = '×';
         btn.onclick = () => {
           selectedCountries = selectedCountries.filter(sc => sc.id !== c.id);
           renderSelectedCountries();
@@ -212,14 +206,8 @@
     document.getElementById('addCountryBtn').addEventListener('click', () => {
       const select = document.getElementById('countrySelect');
       const selectedId = select.value;
-      if (!selectedId) {
-        alert('Please select a country to add.');
-        return;
-      }
-      if (selectedCountries.some(c => c.id === selectedId)) {
-        alert('Country already added.');
-        return;
-      }
+      if (!selectedId) return alert('Please select a country to add.');
+      if (selectedCountries.some(c => c.id === selectedId)) return alert('Country already added.');
       const country = countriesList.find(c => c.id === selectedId);
       if (country) {
         selectedCountries.push(country);
@@ -229,16 +217,9 @@
 
     async function fetchCountryData(countryId, indicator, startYear, endYear) {
       const url = `https://api.worldbank.org/v2/country/${countryId}/indicator/${indicator}?format=json&date=${startYear}:${endYear}&per_page=100`;
-      try {
-        const res = await fetch(url);
-        const json = await res.json();
-        if (!json[1] || json[1].length === 0) {
-          return null;
-        }
-        return json[1].reverse();
-      } catch {
-        return null;
-      }
+      const res = await fetch(url);
+      const json = await res.json();
+      return json[1]?.reverse() || null;
     }
 
     async function fetchAllData() {
@@ -246,120 +227,95 @@
       const startYear = parseInt(document.getElementById('startYear').value);
       const endYear = parseInt(document.getElementById('endYear').value);
       const chartType = document.getElementById('chartType').value;
+      if (selectedCountries.length === 0) return alert('Add at least one country.');
+      if (startYear > endYear) return alert('Invalid year range.');
 
-      if (selectedCountries.length === 0) {
-        alert('Please add at least one country.');
-        return;
-      }
-      if (isNaN(startYear) || isNaN(endYear) || startYear > endYear) {
-        alert('Please enter a valid year range.');
-        return;
-      }
-
-      excelData = [['Year']];
       const labelsSet = new Set();
-
-      // Prepare datasets for chart.js
       const datasets = [];
       let indicatorName = '';
-      for (const country of selectedCountries) {
+
+      for (let i = 0; i < selectedCountries.length; i++) {
+        const country = selectedCountries[i];
         const data = await fetchCountryData(country.id, indicator, startYear, endYear);
         if (!data) {
-          alert(`No data found for ${country.name}.`);
+          alert(`No data for ${country.name}`);
           continue;
         }
-        if (!indicatorName && data.length > 0) {
-          indicatorName = data[0].indicator.value;
-        }
+        if (!indicatorName && data.length > 0) indicatorName = data[0].indicator.value;
 
         const countryDataMap = new Map();
-        data.forEach(record => {
-          if (record.value !== null) {
-            labelsSet.add(record.date);
-            countryDataMap.set(record.date, record.value);
+        data.forEach(d => {
+          if (d.value !== null) {
+            labelsSet.add(d.date);
+            countryDataMap.set(d.date, d.value);
           }
         });
 
         datasets.push({
           label: country.name,
-          data: Array.from(labelsSet).sort().map(year => countryDataMap.get(year) ?? null),
-          borderColor: getRandomColor(),
-          backgroundColor: 'transparent',
+          data: Array.from(labelsSet).sort().map(y => countryDataMap.get(y) ?? null),
+          borderColor: getColorByIndex(i),
+          backgroundColor: getColorByIndex(i),
           fill: false,
           pointRadius: 4,
-          showLine: chartType !== 'scatter',
+          showLine: chartType !== 'scatter'
         });
       }
 
       const labels = Array.from(labelsSet).sort();
+      drawChart(labels, datasets, chartType, indicatorName);
 
-      // Prepare excel data rows: first row headers
+      // Excel data
       excelData = [['Year', ...selectedCountries.map(c => c.name)]];
-      for (const year of labels) {
-        const row = [year];
+      for (let i = 0; i < labels.length; i++) {
+        const row = [labels[i]];
         for (const dataset of datasets) {
-          const idx = labels.indexOf(year);
-          row.push(dataset.data[idx] ?? '');
+          row.push(dataset.data[i] ?? '');
         }
         excelData.push(row);
       }
-
-      drawChart(labels, datasets, chartType, indicatorName);
     }
 
     function drawChart(labels, datasets, type, indicator) {
       const ctx = document.getElementById('dataChart').getContext('2d');
       if (chart) chart.destroy();
-
       chart = new Chart(ctx, {
         type: type,
-        data: {
-          labels: labels,
-          datasets: datasets,
-        },
+        data: { labels, datasets },
         options: {
           responsive: true,
-          scales: {
-            y: {
-              beginAtZero: false,
-              title: { display: true, text: indicator }
-            },
-            x: {
-              title: { display: true, text: 'Year' }
-            }
-          },
           plugins: {
             tooltip: {
               callbacks: {
-                label: ctx => {
-                  let val = ctx.raw;
-                  if (val === null || val === undefined) return 'No data';
-                  return val + (indicator.includes('%') ? '%' : '');
-                }
+                label: ctx => ctx.raw == null ? 'No data' : ctx.raw + (indicator.includes('%') ? '%' : '')
               }
             }
+          },
+          scales: {
+            y: { title: { display: true, text: indicator } },
+            x: { title: { display: true, text: 'Year' } }
           }
         }
       });
     }
 
-    function getRandomColor() {
-      // Returns a random tealish color for datasets
-      const hues = [160, 170, 180, 190, 200, 210];
-      const hue = hues[Math.floor(Math.random() * hues.length)];
-      return `hsl(${hue}, 70%, 40%)`;
+    function getColorByIndex(index) {
+      const colorPalette = [
+        '#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231',
+        '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe',
+        '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000',
+        '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080'
+      ];
+      return colorPalette[index % colorPalette.length];
     }
 
     function downloadExcel() {
-      if (!excelData.length || excelData.length === 1) {
-        alert("No data to export. Please fetch data first.");
-        return;
-      }
-      const worksheet = XLSX.utils.aoa_to_sheet(excelData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+      if (!excelData.length) return alert("No data to export.");
+      const ws = XLSX.utils.aoa_to_sheet(excelData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Data");
       const fileName = `EconData_Multiple_${new Date().toISOString().slice(0,10)}.xlsx`;
-      XLSX.writeFile(workbook, fileName);
+      XLSX.writeFile(wb, fileName);
     }
 
     document.getElementById('showDataBtn').addEventListener('click', fetchAllData);
@@ -367,6 +323,3 @@
 
     window.onload = populateCountries;
   </script>
-
-</body>
-</html>
