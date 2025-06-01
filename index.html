@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>World Bank Economic Data Viewer</title>
+  <meta charset="UTF-8" />
+  <title>Economic Data Viewer - Single Country</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f8f9fa;
       margin: 0;
       padding: 20px;
+      color: #2c3e50;
     }
     header {
       background-color: #1abc9c;
@@ -18,183 +19,246 @@
       text-align: center;
       padding: 20px;
       border-radius: 10px;
+      margin-bottom: 30px;
     }
-    h1 { margin: 0; }
+    h1 {
+      margin: 0;
+      font-weight: 700;
+    }
     #controls {
-      margin: 20px 0;
+      max-width: 600px;
+      margin: auto;
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 30px;
     }
     select, input, button {
       padding: 10px;
       font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      min-width: 180px;
+      flex-grow: 1;
+    }
+    button {
+      background-color: #1abc9c;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      min-width: 200px;
+      flex-grow: unset;
+    }
+    button:hover {
+      background-color: #159a84;
     }
     canvas {
-      background: #fff;
-      padding: 20px;
+      background: white;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: block;
+      margin: 0 auto 40px auto;
+      max-width: 100%;
+      height: 400px;
     }
     footer {
-      margin-top: 40px;
-      padding: 10px;
-      text-align: center;
       background-color: #ecf0f1;
       border-radius: 5px;
-      font-weight: bold;
       color: #2c3e50;
+      font-weight: 600;
+      text-align: center;
+      padding: 15px;
+      max-width: 600px;
+      margin: auto;
+    }
+    .nav-multiple {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      font-weight: 600;
+      color: #1abc9c;
+      text-decoration: none;
+    }
+    .nav-multiple:hover {
+      text-decoration: underline;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>🌍 Economic Data Viewer</h1>
-  <p>Powered by World Bank API</p>
-</header>
+  <header>
+    <h1>🌍 Economic Data Viewer</h1>
+    <p>Powered by Econlens Data Lab</p>
+  </header>
 
-<div id="controls">
-  <select id="countrySelect"></select>
+  <div id="controls">
+    <select id="countrySelect" aria-label="Select country"></select>
 
-  <select id="indicatorSelect">
-    <option value="NY.GDP.MKTP.KD.ZG">GDP Growth (%)</option>
-    <option value="NY.GDP.PCAP.KD.ZG">GDP per capita Growth (%)</option>
-    <option value="FP.CPI.TOTL.ZG">Inflation (% annual)</option>
-    <option value="SL.UEM.TOTL.ZS">Unemployment (% total)</option>
-    <option value="SP.POP.GROW">Population Growth (%)</option>
-  </select>
+    <select id="indicatorSelect" aria-label="Select indicator">
+      <option value="NY.GDP.MKTP.KD.ZG">GDP Growth (%)</option>
+      <option value="NY.GDP.PCAP.KD.ZG">GDP per capita Growth (%)</option>
+      <option value="FP.CPI.TOTL.ZG">Inflation (% annual)</option>
+      <option value="SL.UEM.TOTL.ZS">Unemployment (% total)</option>
+      <option value="SP.POP.GROW">Population Growth (%)</option>
+      <option value="NY.GDP.MKTP.CD">GDP (current US$)</option>
+      <option value="SP.POP.TOTL">Total Population</option>
+      <option value="NE.EXP.GNFS.CD">Exports of goods and services (current US$)</option>
+      <option value="NE.IMP.GNFS.CD">Imports of goods and services (current US$)</option>
+    </select>
 
-  <input type="number" id="startYear" placeholder="Start Year" min="1960" max="2024" value="2000">
-  <input type="number" id="endYear" placeholder="End Year" min="1960" max="2024" value="2023">
+    <input type="number" id="startYear" placeholder="Start Year" min="1960" max="2024" value="2000" aria-label="Start Year" />
+    <input type="number" id="endYear" placeholder="End Year" min="1960" max="2024" value="2023" aria-label="End Year" />
 
-  <select id="chartType">
-    <option value="line">Line</option>
-    <option value="bar">Bar</option>
-    <option value="scatter">Scatter</option>
-  </select>
+    <select id="chartType" aria-label="Select chart type">
+      <option value="line">Line</option>
+      <option value="bar">Bar</option>
+      <option value="scatter">Scatter</option>
+    </select>
 
-  <button onclick="fetchData()">📊 Show</button>
-  <button onclick="downloadExcel()">⬇️ Download Excel</button>
-</div>
+    <button id="showDataBtn">📊 Show Data</button>
+    <button id="downloadExcelBtn">⬇️ Download Excel</button>
+  </div>
 
-<canvas id="dataChart" height="100"></canvas>
+  <canvas id="dataChart"></canvas>
 
-<footer>Concept by ANOOF – Developed with ♥ using World Bank Data</footer>
+  <a href="multiple.html" class="nav-multiple" aria-label="Navigate to multiple country comparison page">
+    ➔ Go to Multiple Country Comparison
+  </a>
 
-<script>
-  let chart;
-  let excelData = [];
+  <footer>
+    <p>© Econlens Data Lab – Data sourced from World Bank. <br />Disclaimer: Data accuracy depends on the source. Use for academic and research purposes only.</p>
+  </footer>
 
-  // Load country list from World Bank API
-  async function populateCountries() {
-    const response = await fetch('https://api.worldbank.org/v2/country?format=json&per_page=300');
-    const data = await response.json();
-    const countries = data[1];
+  <script>
+    let chart;
+    let excelData = [];
 
-    const select = document.getElementById('countrySelect');
-    select.innerHTML = '';
-
-    countries
-      .filter(c => c.region.id !== "NA")
-      .slice(0, 100)
-      .forEach(c => {
-        const option = document.createElement('option');
-        option.value = c.id;
-        option.textContent = c.name;
-        select.appendChild(option);
-      });
-  }
-
-  async function fetchData() {
-    const country = document.getElementById("countrySelect").value;
-    const indicator = document.getElementById("indicatorSelect").value;
-    const chartType = document.getElementById("chartType").value;
-    const startYear = parseInt(document.getElementById("startYear").value);
-    const endYear = parseInt(document.getElementById("endYear").value);
-
-    if (isNaN(startYear) || isNaN(endYear) || startYear > endYear) {
-      alert("Please enter a valid year range.");
-      return;
-    }
-
-    const url = `https://api.worldbank.org/v2/country/${country}/indicator/${indicator}?format=json&date=${startYear}:${endYear}&per_page=100`;
-
-    const res = await fetch(url);
-    const json = await res.json();
-    if (!json[1]) {
-      alert("No data found.");
-      return;
-    }
-
-    const records = json[1].reverse();
-    const labels = [], values = [];
-    const indicatorName = records[0].indicator.value;
-    const countryName = records[0].country.value;
-
-    excelData = [["Year", indicatorName]];
-
-    records.forEach(r => {
-      if (r.value !== null) {
-        labels.push(r.date);
-        values.push(r.value);
-        excelData.push([r.date, r.value]);
+    async function populateCountries() {
+      try {
+        const res = await fetch('https://api.worldbank.org/v2/country?format=json&per_page=300');
+        const json = await res.json();
+        const countries = json[1].filter(c => c.region.id !== "NA").sort((a, b) => a.name.localeCompare(b.name));
+        const select = document.getElementById('countrySelect');
+        select.innerHTML = '<option value="">--Select Country--</option>';
+        countries.forEach(c => {
+          const option = document.createElement('option');
+          option.value = c.id;
+          option.textContent = c.name;
+          select.appendChild(option);
+        });
+      } catch (e) {
+        alert("Failed to load countries data.");
       }
-    });
+    }
 
-    drawChart(labels, values, chartType, indicatorName, countryName);
-  }
+    async function fetchData() {
+      const country = document.getElementById('countrySelect').value;
+      const indicator = document.getElementById('indicatorSelect').value;
+      const chartType = document.getElementById('chartType').value;
+      const startYear = parseInt(document.getElementById('startYear').value);
+      const endYear = parseInt(document.getElementById('endYear').value);
 
-  function drawChart(labels, data, type, indicator, country) {
-    const ctx = document.getElementById("dataChart").getContext("2d");
-    if (chart) chart.destroy();
+      if (!country) {
+        alert('Please select a country.');
+        return;
+      }
+      if (isNaN(startYear) || isNaN(endYear) || startYear > endYear) {
+        alert('Please enter a valid year range.');
+        return;
+      }
 
-    chart = new Chart(ctx, {
-      type: type,
-      data: {
-        labels: labels,
-        datasets: [{
-          label: `${indicator} – ${country}`,
-          data: data,
-          backgroundColor: 'rgba(41, 128, 185, 0.5)',
-          borderColor: 'rgba(41, 128, 185, 1)',
-          borderWidth: 2,
-          fill: type === 'line',
-          pointRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: false,
-            title: { display: true, text: indicator }
-          },
-          x: {
-            title: { display: true, text: "Year" }
+      const url = `https://api.worldbank.org/v2/country/${country}/indicator/${indicator}?format=json&date=${startYear}:${endYear}&per_page=100`;
+
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        if (!json[1] || json[1].length === 0) {
+          alert('No data found for the selected parameters.');
+          return;
+        }
+
+        const records = json[1].reverse();
+        const labels = [];
+        const values = [];
+        const indicatorName = records[0].indicator.value;
+        const countryName = records[0].country.value;
+
+        excelData = [['Year', indicatorName]];
+        records.forEach(r => {
+          if (r.value !== null) {
+            labels.push(r.date);
+            values.push(r.value);
+            excelData.push([r.date, r.value]);
           }
+        });
+
+        drawChart(labels, values, chartType, indicatorName, countryName);
+      } catch (e) {
+        alert("Error fetching data from World Bank API.");
+      }
+    }
+
+    function drawChart(labels, data, type, indicator, country) {
+      const ctx = document.getElementById('dataChart').getContext('2d');
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: type,
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `${indicator} – ${country}`,
+            data: data,
+            backgroundColor: 'rgba(26, 188, 156, 0.5)',
+            borderColor: 'rgba(26, 188, 156, 1)',
+            borderWidth: 2,
+            fill: type === 'line',
+            pointRadius: 4,
+            showLine: type !== 'scatter',
+          }]
         },
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: ctx => `${ctx.raw} %`
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: false,
+              title: { display: true, text: indicator }
+            },
+            x: {
+              title: { display: true, text: 'Year' }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.raw} ${indicator.includes('%') ? '%' : ''}`
+              }
             }
           }
         }
+      });
+    }
+
+    function downloadExcel() {
+      if (!excelData.length || excelData.length === 1) {
+        alert("No data to export. Please fetch data first.");
+        return;
       }
-    });
-  }
+      const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+      const fileName = `EconData_${new Date().toISOString().slice(0,10)}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+    }
 
-  function downloadExcel() {
-    const ws = XLSX.utils.aoa_to_sheet(excelData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "WorldBankData");
-    XLSX.writeFile(wb, `WorldBank_EconData_${new Date().toISOString().slice(0,10)}.xlsx`);
-  }
+    document.getElementById('showDataBtn').addEventListener('click', fetchData);
+    document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcel);
 
-  // Initialize app
-  populateCountries().then(fetchData);
-</script>
+    window.onload = populateCountries;
+  </script>
 
 </body>
 </html>
