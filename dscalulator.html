@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dissimilarity Index from Excel</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    h2 { color: #333; }
+    input[type="file"], button {
+      margin: 10px 5px 10px 0;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th { background-color: #f0f0f0; }
+    td[contenteditable="true"] {
+      background-color: #fffbe6;
+    }
+    .result { margin-top: 20px; }
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #555;
+      text-align: center;
+    }
+    #conceptModal {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -20%);
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #333;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Dissimilarity Index Calculator (Excel Upload)</h2>
+<p>📂 Upload an Excel file with 3 columns: <strong>Occupation</strong>, <strong>%SC</strong>, <strong>%Non-SC</strong></p>
+
+<input type="file" id="fileInput" accept=".xlsx" />
+<button id="downloadBtn" style="display:none;">📥 Download as Excel</button>
+<button onclick="showConcept()">ℹ️ Concept</button>
+
+<div class="result" id="output"></div>
+
+<!-- Concept Modal -->
+<div id="overlay"></div>
+<div id="conceptModal">
+  <h3>Dissimilarity Index Concept</h3>
+  <p>The Dissimilarity Index (D) measures how evenly two groups are distributed across categories. A value of 0 means perfect equality; 100 means complete separation.</p>
+  <p><strong>Formula:</strong> D = (1/2) × Σ | %SCᵢ - %Non-SCᵢ |</p>
+  <button onclick="hideConcept()">Close</button>
+</div>
+
+<footer>
+  <p><em>Concept and implementation by Anoof</em></p>
+</footer>
+
+<script>
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    renderTable(rows);
+    document.getElementById('downloadBtn').style.display = 'inline-block';
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+
+function renderTable(rows) {
+  let tableHTML = `<h3>Result Table (All Editable)</h3><table id="dataTable">
+    <tr><th>Occupation</th><th>% SC</th><th>% Non-SC</th><th>Absolute Difference</th></tr>`;
+
+  for (let i = 1; i < rows.length; i++) {
+    const [occupation, sc, nonSC] = rows[i];
+    const scVal = parseFloat(sc) || 0;
+    const nonSCVal = parseFloat(nonSC) || 0;
+    const diff = Math.abs(scVal - nonSCVal);
+
+    tableHTML += `<tr>
+      <td contenteditable="true">${occupation || `Occupation ${i}`}</td>
+      <td contenteditable="true">${scVal.toFixed(2)}</td>
+      <td contenteditable="true">${nonSCVal.toFixed(2)}</td>
+      <td>${diff.toFixed(2)}</td>
+    </tr>`;
+  }
+
+  tableHTML += `</table>
+    <p><strong>Dissimilarity Index (D) = <span id="dValue"></span></strong></p>`;
+
+  document.getElementById('output').innerHTML = tableHTML;
+  recalculateIndex();
+  addEditListeners();
+}
+
+function addEditListeners() {
+  const table = document.getElementById('dataTable');
+  for (let i = 1; i < table.rows.length; i++) {
+    for (let j = 0; j < 3; j++) {
+      table.rows[i].cells[j].addEventListener('input', recalculateIndex);
+    }
+  }
+}
+
+function recalculateIndex() {
+  const table = document.getElementById('dataTable');
+  let totalDiff = 0;
+  let totalSC = 0;
+  let totalNonSC = 0;
+
+  for (let i = 1; i < table.rows.length; i++) {
+    const row = table.rows[i];
+    const sc = parseFloat(row.cells[1].innerText) || 0;
+    const nonSC = parseFloat(row.cells[2].innerText) || 0;
+    const diff = Math.abs(sc - nonSC);
+
+    row.cells[3].innerText = diff.toFixed(2);
+    totalSC += sc;
+    totalNonSC += nonSC;
+    totalDiff += diff;
+  }
+
+  const D = (totalDiff / 2).toFixed(2);
+  document.getElementById('dValue').innerText = D;
+}
+
+document.getElementById('downloadBtn').addEventListener('click', function() {
+  const table = document.getElementById('dataTable');
+  const rows = [];
+
+  for (let i = 1; i < table.rows.length; i++) {
+    const row = table.rows[i];
+    const occupation = row.cells[0].innerText;
+    const sc = parseFloat(row.cells[1].innerText) || 0;
+    const nonSC = parseFloat(row.cells[2].innerText) || 0;
+    rows.push([occupation, sc, nonSC]);
+  }
+
+  const worksheet = XLSX.utils.aoa_to_sheet([["Occupation", "%SC", "%Non-SC"], ...rows]);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Edited Data");
+  XLSX.writeFile(workbook, "edited_dissimilarity_data.xlsx");
+});
+
+function showConcept() {
+  document.getElementById('conceptModal').style.display = 'block';
+  document.getElementById('overlay').style.display = 'block';
+}
+
+function hideConcept() {
+  document.getElementById('conceptModal').style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
+}
+</script>
+
+</body>
+</html>
