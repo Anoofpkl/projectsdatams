@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ECOLENS | Unit 2: Inflation & Unemployment</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9f9fb;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    header {
+      background: #2a3f54;
+      color: #fff;
+      padding: 30px 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.8rem;
+      letter-spacing: 2px;
+    }
+
+    header h2 {
+      margin: 5px 0 0 0;
+      font-weight: normal;
+      font-size: 1.2rem;
+      color: #d0d0d0;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .dropdown {
+      margin-bottom: 20px;
+      text-align: right;
+    }
+
+    select {
+      padding: 8px 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .syllabus {
+      background: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+    }
+
+    .syllabus h3 {
+      margin-top: 0;
+      color: #0d47a1;
+    }
+
+    section {
+      margin-bottom: 40px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    details summary {
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    a {
+      color: #0077cc;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    img {
+      max-width: 100%;
+      margin-top: 20px;
+      border-radius: 6px;
+    }
+
+    .reference {
+      background-color: #eef5fa;
+      padding: 10px 15px;
+      border-left: 4px solid #0077cc;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    footer {
+      background: #2a3f54;
+      color: #fff;
+      text-align: center;
+      padding: 15px 10px;
+      font-size: 14px;
+      margin-top: 60px;
+    }
+
+    footer span {
+      color: #4fc3f7;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+
+      header h2 {
+        font-size: 1rem;
+      }
+
+      .dropdown {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>ECOLENS</h1>
+    <h2>Macroeconomics | Unit 2: Inflation & Unemployment</h2>
+  </header>
+
+  <div class="container">
+
+    <div class="dropdown">
+      <label for="unit-select"><strong>Select Unit:</strong></label>
+      <select id="unit-select" onchange="location = this.value;">
+        <option value="#">-- Choose Unit --</option>
+        <option value="#" selected>Unit 2: Inflation and Unemployment</option>
+        <option value="#">Unit 1: Theories of Consumption and Investment</option>
+        <option value="#">Unit 3: Functions of Money and IS–LM Framework</option>
+        <option value="#">Unit 4: Trade Cycles and Macroeconomic Policies</option>
+      </select>
+    </div>
+
+    <div class="syllabus">
+      <h3>📘 Unit 2: Inflation and Unemployment – Syllabus</h3>
+      <strong>Inflation:</strong>
+      <ul>
+        <li>Inflationary gap</li>
+        <li>Short-run and long-run Phillips curve</li>
+        <li>Stagflation</li>
+        <li>Adaptive expectations</li>
+        <li>Natural rate of unemployment (NAIRU)</li>
+        <li>Role of the Central Bank in controlling inflation</li>
+        <li>Monetary policy and disinflation</li>
+        <li>Sacrifice ratio</li>
+        <li>Policy ineffectiveness proposition</li>
+      </ul>
+      <strong>Unemployment:</strong>
+      <ul>
+        <li>Types of unemployment</li>
+        <li>Measurement of unemployment</li>
+        <li>Cost of unemployment</li>
+        <li>Okun’s law</li>
+      </ul>
+    </div>
+
+    <!-- Unit 2 Content -->
+    <section>
+      <details open>
+        <summary>📈 Inflationary Gap</summary>
+        <p><strong>Introduced by:</strong> J.M. Keynes</p>
+        <ul>
+          <li>Occurs when aggregate demand exceeds output at full employment (Yf).</li>
+          <li>AD = C + I + G + (X - M) > Yf → leads to inflation.</li>
+          <li>Describes a disequilibrium where prices rise as long as gap persists.</li>
+        </ul>
+        <p><strong>Example:</strong></p>
+        <ul>
+          <li>Initial output: ₹600 crore | ₹100 crore taken as taxes → ₹500 crore for spending.</li>
+          <li>If money income rises to ₹800 crore, net disposable = ₹650 crore → ₹150 crore excess demand → inflation.</li>
+        </ul>
+        <p><strong>Graphical Explanation:</strong></p>
+        <img src="https://economicsconcepts.com/old_site/figure_31.4.JPG" alt="Inflationary Gap Graph" />
+      </details>
+    </section>
+
+    <section>
+      <details>
+        <summary>📉 Deflationary Gap</summary>
+        <ul>
+          <li>Occurs when equilibrium income is below full employment income.</li>
+          <li>Caused by insufficient aggregate demand.</li>
+          <li>Represents amount needed to raise AD to reach Yf.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <details>
+        <summary>📊 Phillips Curve</summary>
+        <p>Shows the inverse relationship between inflation and unemployment in the short run.</p>
+        <div class="reference">
+          ▶️ <a href="https://youtu.be/m2zf3d4KBQg?feature=shared" target="_blank">Watch explanation on YouTube</a>
+        </div>
+      </details>
+    </section>
+
+    <section>
+      <details>
+        <summary>⚠️ Stagflation</summary>
+        <p>Simultaneous occurrence of stagnation (low growth) and inflation.</p>
+        <div class="reference">
+          🔗 <a href="https://www.economicshelp.org/blog/glossary/stagflation/" target="_blank">Read more on Economics Help</a>
+        </div>
+      </details>
+    </section>
+
+    <section>
+      <details>
+        <summary>🏦 Role of Central Bank in Controlling Inflation</summary>
+        <ul>
+          <li>Controls money supply, credit, and interest rates.</li>
+          <li>Implements monetary policy to maintain price stability.</li>
+        </ul>
+        <div class="reference">
+          🔗 <a href="https://www.epw.in/journal/2018/13/money-banking-and-finance/can-central-banks-reduce-inflation.html" target="_blank">EPW Article</a>
+        </div>
+      </details>
+    </section>
+
+    <section>
+      <details>
+        <summary>💸 Economic and Social Costs of Unemployment</summary>
+        <h3>Economic Costs</h3>
+        <ul>
+          <li><strong>Loss of GDP:</strong> 1% ↑ in unemployment → 2% ↓ in GDP (Okun’s Law)</li>
+          <li><strong>Fiscal burden:</strong> More welfare spending, less tax revenue</li>
+          <li><strong>Reduced consumption:</strong> Less spending = lower demand = job losses</li>
+          <li><strong>Skill erosion:</strong> Long-term unemployment leads to deskilling</li>
+          <li><strong>Higher business costs:</strong> Training new employees post-recovery</li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <details>
+        <summary>📐 Okun’s Law</summary>
+        <p>Estimates the relationship between unemployment and GDP.</p>
+        <ul>
+          <li>1% rise in unemployment → 2% fall in GDP (approx.)</li>
+        </ul>
+        <div class="reference">
+          🔗 <a href="https://www.investopedia.com/articles/economics/12/okuns-law.asp" target="_blank">Investopedia Explanation</a> <br>
+          ▶️ <a href="https://youtu.be/50bn95Kbnko?si=oxDdG0698b_AMOD9" target="_blank">YouTube Video</a>
+        </div>
+      </details>
+    </section>
+
+  </div>
+
+  <footer>
+    📱 Responsive Design | Developed by <span>Anoof K</span> | ECOLENS 2025
+  </footer>
+
+</body>
+</html>
