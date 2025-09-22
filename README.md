@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PQLI Calculator — Ecole S</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .card { background: rgba(255,255,255,0.9); border: 1px solid rgba(0,0,0,0.06); border-radius: 0.5rem; padding: 1rem; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-sky-50 to-white p-6 font-sans">
+  <div class="max-w-3xl mx-auto">
+    <header class="mb-6">
+      <h1 class="text-3xl font-semibold">PQLI Calculator</h1>
+      <p class="text-sm text-slate-600">Educational Mode — Plain HTML/JS</p>
+    </header>
+
+    <div class="card">
+      <h2 class="text-xl font-medium mb-2">Enter Indicators</h2>
+      <p class="text-sm text-slate-600 mb-4">Life Expectancy, Infant Mortality, and Literacy Rate</p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Life Expectancy at Age 1 (years)</label>
+          <input id="le1" type="number" value="60" class="mt-1 block w-full rounded border px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Infant Mortality Rate (per 1000 live births)</label>
+          <input id="imr" type="number" value="50" class="mt-1 block w-full rounded border px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Basic Literacy Rate (%)</label>
+          <input id="lr" type="number" value="70" class="mt-1 block w-full rounded border px-3 py-2" />
+        </div>
+      </div>
+
+      <!-- Scores -->
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="p-3 border rounded text-center">
+          <div class="text-xs text-slate-500">LE Score</div>
+          <div id="sLE" class="text-2xl font-semibold">--</div>
+        </div>
+        <div class="p-3 border rounded text-center">
+          <div class="text-xs text-slate-500">IMR Score</div>
+          <div id="sIMR" class="text-2xl font-semibold">--</div>
+        </div>
+        <div class="p-3 border rounded text-center">
+          <div class="text-xs text-slate-500">Literacy Score</div>
+          <div id="sLR" class="text-2xl font-semibold">--</div>
+        </div>
+      </div>
+
+      <!-- Final PQLI -->
+      <div class="mt-4 p-4 rounded bg-white/70 border text-center">
+        <div class="text-sm text-slate-600">Final PQLI</div>
+        <div id="pqli" class="text-3xl font-bold">--</div>
+        <div id="pqliLabel" class="text-sm text-slate-500 mt-1">--</div>
+      </div>
+    </div>
+
+    <footer class="mt-6 text-sm text-slate-500">
+      Formula: LE Score = (LE1 - 38)/42 * 100; IMR Score = (166 - IMR)/165 * 100; Literacy = %.
+    </footer>
+  </div>
+
+  <script>
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    function leScore(LE1) {
+      const min = 38, max = 80;
+      const val = ((LE1 - min) / (max - min)) * 100;
+      return Number(clamp(Number(val.toFixed(2)), 0, 100));
+    }
+
+    function imrScore(IMR) {
+      const worst = 166, range = 165;
+      const val = ((worst - IMR) / range) * 100;
+      return Number(clamp(Number(val.toFixed(2)), 0, 100));
+    }
+
+    function literacyScore(LR) {
+      return Number(clamp(Number(LR), 0, 100));
+    }
+
+    function computePQLI({ LE1, IMR, LR }) {
+      const sLE = leScore(LE1);
+      const sIMR = imrScore(IMR);
+      const sLR = literacyScore(LR);
+      const pqli = Number(((sLE + sIMR + sLR) / 3).toFixed(2));
+      return { sLE, sIMR, sLR, pqli };
+    }
+
+    const elLE1 = document.getElementById('le1');
+    const elIMR = document.getElementById('imr');
+    const elLR = document.getElementById('lr');
+    const elSLE = document.getElementById('sLE');
+    const elSIMR = document.getElementById('sIMR');
+    const elSLR = document.getElementById('sLR');
+    const elPQLI = document.getElementById('pqli');
+    const elPQLILabel = document.getElementById('pqliLabel');
+
+    function recompute() {
+      const LE1 = Number(elLE1.value || 0);
+      const IMR = Number(elIMR.value || 0);
+      const LR = Number(elLR.value || 0);
+
+      const { sLE, sIMR, sLR, pqli } = computePQLI({ LE1, IMR, LR });
+
+      elSLE.textContent = sLE;
+      elSIMR.textContent = sIMR;
+      elSLR.textContent = sLR;
+      elPQLI.textContent = pqli;
+      elPQLILabel.textContent = pqli >= 75 ? 'High quality of life' : pqli >= 50 ? 'Medium' : 'Low';
+    }
+
+    [elLE1, elIMR, elLR].forEach(el => el.addEventListener('input', recompute));
+    recompute();
+  </script>
+</body>
+</html>
