@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>eOffice File Management System</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --primary: #1f6feb;
+      --primary-dark: #1856b2;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2a44;
+      --muted: #6b7280;
+      --success: #16a34a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(120deg, var(--primary), #60a5fa);
+      color: #ffffff;
+      padding: 24px 32px;
+    }
+
+    header h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 15px;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 600;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #d4d8e1;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 140px;
+    }
+
+    button {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s ease;
+      margin-top: 12px;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 88px);
+      padding: 24px;
+    }
+
+    .login-card {
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(22, 163, 74, 0.15);
+      color: var(--success);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .file-list {
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .file-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .file-item strong {
+      font-size: 15px;
+    }
+
+    .file-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .file-actions button {
+      width: auto;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .share-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .share-link input {
+      flex: 1;
+    }
+
+    .banner {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .logout-btn {
+      background: #ef4444;
+    }
+
+    .logout-btn:hover {
+      background: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📁 eOffice File Management System</h1>
+    <p>Save files, generate shareable links, and create office documents in one place.</p>
+  </header>
+
+  <main class="container">
+    <section class="login-screen" id="loginScreen">
+      <div class="card login-card">
+        <h2>Secure Login</h2>
+        <p class="muted">Use the credentials below to access the demo office portal.</p>
+        <div class="banner">
+          <strong>Demo User ID:</strong> admin<br />
+          <strong>Demo Password:</strong> Office@123
+        </div>
+        <label for="userId">User ID</label>
+        <input id="userId" type="text" placeholder="Enter user ID" />
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="Enter password" />
+        <button id="loginBtn">Login</button>
+        <p id="loginError" class="muted"></p>
+      </div>
+    </section>
+
+    <section id="app" class="hidden">
+      <div class="top-row">
+        <div>
+          <span class="pill">Logged in</span>
+          <p class="muted" id="welcomeText">Welcome!</p>
+        </div>
+        <button class="logout-btn" id="logoutBtn">Log out</button>
+      </div>
+
+      <div class="banner" id="noticeBanner">
+        <strong>File Size Limit:</strong> 150 MB maximum per upload. This single-file demo stores files in the current browser session.
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Upload &amp; Save Files</h2>
+          <p class="muted">Add any document or media file. Generate a shareable link for each upload and reuse it later.</p>
+          <label for="fileInput">Choose file</label>
+          <input id="fileInput" type="file" />
+          <button id="uploadBtn">Save File</button>
+          <p id="uploadStatus" class="muted"></p>
+          <ul class="file-list" id="fileList"></ul>
+        </div>
+
+        <div class="card">
+          <h2>Create Office Documents</h2>
+          <p class="muted">Draft meeting notes, letters, and reports. Export as Word or text.</p>
+          <label for="docTitle">Document Title</label>
+          <input id="docTitle" type="text" placeholder="Quarterly Report" />
+          <label for="docBody">Document Content</label>
+          <textarea id="docBody" placeholder="Write your content here..."></textarea>
+          <button id="downloadDocBtn">Download as Word (.doc)</button>
+          <button id="downloadTxtBtn">Download as Text (.txt)</button>
+        </div>
+
+        <div class="card">
+          <h2>Shareable Link Generator</h2>
+          <p class="muted">Create a link that you can share with colleagues for a saved file.</p>
+          <label for="linkName">File Name or Notes</label>
+          <input id="linkName" type="text" placeholder="Contract.pdf" />
+          <button id="generateLinkBtn">Generate Link</button>
+          <div class="share-link hidden" id="shareLinkArea">
+            <input id="shareLink" type="text" readonly />
+            <button id="copyLinkBtn">Copy</button>
+          </div>
+          <div class="muted" id="shareStatus"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const MAX_FILE_SIZE = 150 * 1024 * 1024;
+    const loginScreen = document.getElementById('loginScreen');
+    const appSection = document.getElementById('app');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginError = document.getElementById('loginError');
+    const welcomeText = document.getElementById('welcomeText');
+    const noticeBanner = document.getElementById('noticeBanner');
+
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const fileList = document.getElementById('fileList');
+
+    const docTitle = document.getElementById('docTitle');
+    const docBody = document.getElementById('docBody');
+    const downloadDocBtn = document.getElementById('downloadDocBtn');
+    const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+
+    const linkName = document.getElementById('linkName');
+    const generateLinkBtn = document.getElementById('generateLinkBtn');
+    const shareLinkArea = document.getElementById('shareLinkArea');
+    const shareLink = document.getElementById('shareLink');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
+    const shareStatus = document.getElementById('shareStatus');
+
+    const sessionFiles = [];
+    const storedLinks = JSON.parse(localStorage.getItem('shareLinks') || '{}');
+    const storedFiles = JSON.parse(localStorage.getItem('savedFiles') || '[]');
+    const storedUser = localStorage.getItem('officeUser');
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+    }
+
+    function updateFileList() {
+      fileList.innerHTML = '';
+      const filesToShow = sessionFiles.length ? sessionFiles : storedFiles;
+      if (!filesToShow.length) {
+        const empty = document.createElement('li');
+        empty.className = 'muted';
+        empty.textContent = 'No files saved yet.';
+        fileList.appendChild(empty);
+        return;
+      }
+
+      filesToShow.forEach((file) => {
+        const item = document.createElement('li');
+        item.className = 'file-item';
+        const meta = document.createElement('strong');
+        meta.textContent = file.name;
+        const info = document.createElement('span');
+        info.className = 'muted';
+        info.textContent = `${formatBytes(file.size)} • ${file.type || 'Unknown type'} • Saved ${file.savedAt}`;
+
+        const actions = document.createElement('div');
+        actions.className = 'file-actions';
+        const downloadBtn = document.createElement('button');
+        downloadBtn.textContent = 'Download';
+        downloadBtn.addEventListener('click', () => {
+          if (file.fileObj) {
+            const url = URL.createObjectURL(file.fileObj);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = file.name;
+            link.click();
+            URL.revokeObjectURL(url);
+          } else {
+            alert('This file was saved in the browser history only. Please re-upload the file to download it again.');
+          }
+        });
+
+        const shareBtn = document.createElement('button');
+        shareBtn.textContent = 'Get Share Link';
+        shareBtn.addEventListener('click', () => {
+          generateShareLink(file.name);
+        });
+
+        actions.append(downloadBtn, shareBtn);
+        item.append(meta, info, actions);
+        fileList.appendChild(item);
+      });
+    }
+
+    function login() {
+      const userId = document.getElementById('userId').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (userId === 'admin' && password === 'Office@123') {
+        loginScreen.classList.add('hidden');
+        appSection.classList.remove('hidden');
+        loginError.textContent = '';
+        welcomeText.textContent = `Welcome, ${userId}!`;
+        localStorage.setItem('officeUser', userId);
+      } else {
+        loginError.textContent = 'Invalid credentials. Please use the demo user ID and password.';
+      }
+    }
+
+    function logout() {
+      appSection.classList.add('hidden');
+      loginScreen.classList.remove('hidden');
+      document.getElementById('password').value = '';
+      localStorage.removeItem('officeUser');
+    }
+
+    function uploadFile() {
+      const file = fileInput.files[0];
+      uploadStatus.textContent = '';
+      if (!file) {
+        uploadStatus.textContent = 'Please choose a file to upload.';
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        uploadStatus.textContent = 'File exceeds the 150 MB limit.';
+        return;
+      }
+
+      const savedFile = {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        savedAt: new Date().toLocaleString(),
+        fileObj: file,
+      };
+
+      sessionFiles.unshift(savedFile);
+      storedFiles.unshift({
+        name: savedFile.name,
+        size: savedFile.size,
+        type: savedFile.type,
+        savedAt: savedFile.savedAt,
+      });
+      localStorage.setItem('savedFiles', JSON.stringify(storedFiles));
+
+      fileInput.value = '';
+      uploadStatus.textContent = 'File saved successfully in this session.';
+      updateFileList();
+    }
+
+    function downloadDocument(extension) {
+      const title = docTitle.value.trim() || 'office-document';
+      const body = docBody.value.trim();
+      if (!body) {
+        alert('Please write some content before downloading.');
+        return;
+      }
+
+      let blob;
+      if (extension === 'doc') {
+        const docContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${body.replace(/\n/g, '<br/>')}</body></html>`;
+        blob = new Blob([docContent], { type: 'application/msword' });
+      } else {
+        blob = new Blob([body], { type: 'text/plain' });
+      }
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title}.${extension}`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function generateShareLink(label) {
+      const base = `${window.location.origin}${window.location.pathname}`;
+      const token = Math.random().toString(36).slice(2, 10);
+      const name = label || linkName.value.trim() || 'file';
+      shareLink.value = `${base}?share=${encodeURIComponent(name)}&token=${token}`;
+      shareLinkArea.classList.remove('hidden');
+      shareStatus.textContent = `Share link created for ${name}.`;
+      storedLinks[token] = name;
+      localStorage.setItem('shareLinks', JSON.stringify(storedLinks));
+    }
+
+    function copyShareLink() {
+      if (!shareLink.value) return;
+      navigator.clipboard.writeText(shareLink.value).then(() => {
+        copyLinkBtn.textContent = 'Copied!';
+        setTimeout(() => (copyLinkBtn.textContent = 'Copy'), 1500);
+      });
+    }
+
+    function checkShareLink() {
+      const params = new URLSearchParams(window.location.search);
+      const share = params.get('share');
+      const token = params.get('token');
+      if (!share || !token) return;
+      const storedName = storedLinks[token];
+      noticeBanner.innerHTML = `<strong>Share Link:</strong> ${storedName || decodeURIComponent(share)} was requested. Ask the owner to re-upload the file if download is needed.`;
+    }
+
+    function applyStoredLogin() {
+      if (!storedUser) return;
+      loginScreen.classList.add('hidden');
+      appSection.classList.remove('hidden');
+      welcomeText.textContent = `Welcome, ${storedUser}!`;
+    }
+
+    loginBtn.addEventListener('click', login);
+    document.getElementById('password').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        login();
+      }
+    });
+    logoutBtn.addEventListener('click', logout);
+    uploadBtn.addEventListener('click', uploadFile);
+    downloadDocBtn.addEventListener('click', () => downloadDocument('doc'));
+    downloadTxtBtn.addEventListener('click', () => downloadDocument('txt'));
+    generateLinkBtn.addEventListener('click', () => generateShareLink(linkName.value));
+    copyLinkBtn.addEventListener('click', copyShareLink);
+
+    applyStoredLogin();
+    checkShareLink();
+    updateFileList();
+  </script>
+</body>
+</html>
