@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>eOffice File Management System</title>
+  <title>Original Office File Management System</title>
   <style>
     :root {
       color-scheme: light;
@@ -215,8 +215,8 @@
 </head>
 <body>
   <header>
-    <h1>📁 eOffice File Management System</h1>
-    <p>Save files, generate shareable links, and create office documents in one place.</p>
+    <h1>📁 Original Office File Management System</h1>
+    <p>Save files, generate shareable links, and create office documents anywhere.</p>
   </header>
 
   <main class="container">
@@ -500,8 +500,15 @@
       URL.revokeObjectURL(url);
     }
 
+    function getBaseUrl() {
+      if (window.location.origin === 'null') {
+        return window.location.href.split('?')[0];
+      }
+      return `${window.location.origin}${window.location.pathname}`;
+    }
+
     function generateShareLink(label) {
-      const base = `${window.location.origin}${window.location.pathname}`;
+      const base = getBaseUrl();
       const token = Math.random().toString(36).slice(2, 10);
       const name = label || linkName.value.trim() || 'file';
       shareLink.value = `${base}?share=${encodeURIComponent(name)}&token=${token}`;
@@ -664,7 +671,7 @@
         githubStatus.textContent = 'Missing download URL. Please upload again.';
         return;
       }
-      const base = `${window.location.origin}${window.location.pathname}`;
+      const base = getBaseUrl();
       const shareUrl = `${base}?fileUrl=${encodeURIComponent(file.downloadUrl)}&fileName=${encodeURIComponent(file.name || 'document')}`;
       shareLink.value = shareUrl;
       shareLinkArea.classList.remove('hidden');
@@ -680,13 +687,27 @@
       if (fileUrl) {
         const decodedUrl = decodeURIComponent(fileUrl);
         const decodedName = fileName ? decodeURIComponent(fileName) : 'document';
-        noticeBanner.innerHTML = `
-          <strong>Shared Document:</strong> ${decodedName}
-          <div class="file-actions" style="margin-top: 8px;">
-            <button onclick="window.open('${decodedUrl}', '_blank', 'noopener,noreferrer')">Open</button>
-            <button onclick="window.open('${decodedUrl}', '_blank', 'noopener,noreferrer')">Download</button>
-          </div>
-        `;
+        noticeBanner.textContent = '';
+        const title = document.createElement('strong');
+        title.textContent = `Shared Document: ${decodedName}`;
+        const actions = document.createElement('div');
+        actions.className = 'file-actions';
+        actions.style.marginTop = '8px';
+
+        const openBtn = document.createElement('button');
+        openBtn.textContent = 'Open';
+        openBtn.addEventListener('click', () => {
+          window.open(decodedUrl, '_blank', 'noopener,noreferrer');
+        });
+
+        const downloadBtn = document.createElement('button');
+        downloadBtn.textContent = 'Download';
+        downloadBtn.addEventListener('click', () => {
+          window.open(decodedUrl, '_blank', 'noopener,noreferrer');
+        });
+
+        actions.append(openBtn, downloadBtn);
+        noticeBanner.append(title, actions);
         return;
       }
       if (!share || !token) return;
