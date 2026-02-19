@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sukoon Eats - Ramadan Special</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+margin:0;
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+}
+
+.container{
+max-width:420px;
+margin:20px auto;
+background:rgba(255,255,255,0.05);
+padding:20px;
+border-radius:20px;
+backdrop-filter:blur(10px);
+box-shadow:0 0 25px rgba(255,215,0,0.3);
+}
+
+h1{text-align:center;color:gold;margin-bottom:5px;}
+.subtitle{text-align:center;font-size:13px;color:#ddd;margin-bottom:15px;}
+
+.section-title{
+color:gold;
+margin-top:15px;
+margin-bottom:5px;
+font-size:15px;
+}
+
+input,select{
+width:100%;
+padding:8px;
+margin-top:5px;
+margin-bottom:12px;
+border-radius:8px;
+border:none;
+}
+
+.item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+.item input{
+width:60px;
+}
+
+.total-box{
+background:rgba(255,215,0,0.15);
+padding:12px;
+border-radius:10px;
+text-align:center;
+font-size:18px;
+font-weight:bold;
+color:gold;
+margin-top:10px;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+margin-top:12px;
+}
+
+.pay-btn{ background:#0066ff;color:white; }
+.submit-btn{ background:#25D366;color:white; }
+
+#uploadSection{ display:none; }
+
+.footer{
+text-align:center;
+font-size:12px;
+margin-top:15px;
+color:#ccc;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🌙 SUKOON EATS</h1>
+<div class="subtitle">Free Delivery to Selected Points in Jamia Nagar</div>
+
+<label>Name</label>
+<input type="text" id="name">
+
+<label>WhatsApp Number</label>
+<input type="tel" id="phone">
+
+<label>Select Delivery Location</label>
+<select id="location">
+<option>Haji Colony</option>
+<option>Jamia Millia - 7th Gate</option>
+<option>Jamia Millia Metro Station Gate 3</option>
+<option>Johri Farm - Masjidnabi</option>
+<option>Abul Fazal - Okhla Vihar Metro</option>
+</select>
+
+<hr>
+
+<div class="section-title">Main Menu</div>
+
+<div class="item">
+<span>Iftar Kit ₹49</span>
+<input type="number" id="iftar" value="0" min="0" onchange="calculate()">
+</div>
+
+<div class="item">
+<span>Main Dish ₹75</span>
+<input type="number" id="main" value="0" min="0" onchange="calculate()">
+</div>
+
+<div class="item">
+<span>Combo ₹115</span>
+<input type="number" id="combo" value="0" min="0" onchange="calculate()">
+</div>
+
+<div class="section-title">Add-Ons</div>
+
+<div class="item">
+<span>Extra Pathiri ₹10</span>
+<input type="number" id="pathiri" value="0" min="0" onchange="calculate()">
+</div>
+
+<div class="item">
+<span>Chicken Samosa ₹15</span>
+<input type="number" id="samosa" value="0" min="0" onchange="calculate()">
+</div>
+
+<div class="item">
+<span>Chicken Cutlet ₹15</span>
+<input type="number" id="cutlet" value="0" min="0" onchange="calculate()">
+</div>
+
+<div class="total-box">
+Total: ₹ <span id="total">0</span>
+</div>
+
+<button class="pay-btn" onclick="payNow()">Pay via UPI</button>
+
+<div id="uploadSection">
+<label>Upload Payment Screenshot</label>
+<input type="file" accept="image/*">
+<button class="submit-btn" onclick="submitOrder()">Submit Order</button>
+</div>
+
+<div class="footer">
+Sukoon Eats, Johri Farm, Lane No. 04, Jamia Nagar, Delhi<br>
+📞 +91 9645800401 | +91 9633964691 (WhatsApp)
+</div>
+
+</div>
+
+<script>
+function calculate(){
+let total =
+(parseInt(document.getElementById("iftar").value)||0)*49 +
+(parseInt(document.getElementById("main").value)||0)*75 +
+(parseInt(document.getElementById("combo").value)||0)*115 +
+(parseInt(document.getElementById("pathiri").value)||0)*10 +
+(parseInt(document.getElementById("samosa").value)||0)*15 +
+(parseInt(document.getElementById("cutlet").value)||0)*15;
+
+document.getElementById("total").innerText = total;
+}
+
+function payNow(){
+let total = document.getElementById("total").innerText;
+if(total == 0){ alert("Select items first"); return; }
+
+let upiLink = "upi://pay?pa=jihadassv-1@okicici" +
+"&pn=jihada%20shaheer" +
+"&am=" + total +
+"&cu=INR" +
+"&tn=Sukoon%20Eats%20Ramadan%20Order";
+
+window.location.href = upiLink;
+document.getElementById("uploadSection").style.display = "block";
+}
+
+function submitOrder(){
+let name = document.getElementById("name").value;
+let phone = document.getElementById("phone").value;
+let location = document.getElementById("location").value;
+let total = document.getElementById("total").innerText;
+
+let message =
+"🌙 Sukoon Eats Order%0A%0A"+
+"Name: "+name+"%0A"+
+"Phone: "+phone+"%0A"+
+"Location: "+location+"%0A"+
+"Total Paid: ₹"+total;
+
+window.open("https://wa.me/919645800401?text="+message,"_blank");
+}
+</script>
+
+</body>
+</html>
