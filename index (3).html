@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Suhur Meal Count Register — Ramadan 1447</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+  :root {
+    --bg:#f5f6f0;--white:#ffffff;--border:#dde0d8;--text:#1a1e16;--muted:#6b7266;--faint:#eaece5;
+    --boys:#2b5fa6;--girls:#8b3a6e;--other:#7a6230;--total:#1a6644;--red:#b53535;--green:#1a6644;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:var(--text);font-size:14px;}
+  header{background:var(--text);color:#fff;padding:28px 36px;border-bottom:3px solid var(--boys);}
+  .header-inner{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;max-width:1200px;margin:0 auto;}
+  header h1{font-size:21px;font-weight:700;margin-bottom:4px;}
+  .sub{font-size:11px;color:#a0aaaa;letter-spacing:1px;}
+  .hdr-right{text-align:right;}
+  .hdr-lbl{font-size:10px;color:#a0aaaa;letter-spacing:1.5px;text-transform:uppercase;}
+  .hdr-val{font-size:13px;font-weight:600;margin-top:3px;color:#c8d8f0;}
+  .wrap{max-width:1200px;margin:0 auto;padding:24px 16px 40px;}
+  .sec-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+  .card{background:var(--white);border:1px solid var(--border);border-radius:5px;padding:18px 20px;}
+  .c-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .c-val{font-size:36px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-bottom:4px;}
+  .c-sub{font-size:11px;color:var(--muted);}
+  .card.ct{border-top:3px solid var(--total);} .card.ct .c-val{color:var(--total);}
+  .card.cb{border-top:3px solid var(--boys);}  .card.cb .c-val{color:var(--boys);}
+  .card.cg{border-top:3px solid var(--girls);} .card.cg .c-val{color:var(--girls);}
+  .card.ca{border-top:3px solid var(--other);} .card.ca .c-val{color:var(--other);}
+  .panel{background:var(--white);border:1px solid var(--border);border-radius:5px;padding:22px;margin-bottom:16px;}
+  .panel-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;}
+  .chart-grid{display:grid;grid-template-columns:3fr 2fr;gap:16px;}
+  @media(max-width:700px){.chart-grid{grid-template-columns:1fr;}}
+  .hostel-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.hostel-grid{grid-template-columns:1fr;}}
+  .hostel-hdr{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid;margin-bottom:10px;}
+  .bh{color:var(--boys);border-color:var(--boys);}
+  .gh{color:var(--girls);border-color:var(--girls);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:var(--faint);}
+  td{padding:9px 10px;border-bottom:1px solid var(--faint);}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:#f9faf7;}
+  .h-name{font-weight:600;}
+  .bar-wrap{display:flex;align-items:center;gap:8px;}
+  .bar-bg{flex:1;height:5px;background:var(--faint);border-radius:3px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:3px;}
+  .mono{font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:36px;text-align:right;font-size:13px;}
+  .daily-wrap{overflow-x:auto;}
+  .dt th,.dt td{padding:7px 9px;font-size:12px;}
+  .dt thead tr:first-child th{background:var(--text);color:#fff;font-size:10px;}
+  .dt thead tr:first-child th.bth{background:var(--boys);}
+  .dt thead tr:first-child th.gth{background:var(--girls);}
+  .dt thead tr:first-child th.oth{background:var(--other);}
+  .dt .sub-hd th{background:#f0f2ec;color:var(--muted);font-size:10px;}
+  .tot-row td{font-weight:700;background:var(--faint)!important;font-family:'IBM Plex Mono',monospace;}
+  .badge{display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;vertical-align:middle;margin-left:4px;}
+  .bpeak{background:#d8f0e6;color:var(--green);}
+  .blow{background:#fde8e8;color:var(--red);}
+  .totcell{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;}
+  footer{text-align:center;padding:20px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);letter-spacing:1px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Suhur Meal Count Register</h1>
+      <div class="sub">CU KERALA &nbsp;|&nbsp; RAMADAN 1447 &nbsp;|&nbsp; 19 FEB – 14 MAR 2026</div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-lbl">Total Days Recorded</div>
+      <div class="hdr-val">21 Days</div>
+      <div class="hdr-lbl" style="margin-top:10px">Grand Total Meals</div>
+      <div class="hdr-val" id="hdr-total">—</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="sec-lbl">Summary</div>
+  <div class="cards">
+    <div class="card ct"><div class="c-lbl">Grand Total Meals</div><div class="c-val" id="c-grand">—</div><div class="c-sub">All hostels · All days</div></div>
+    <div class="card cb"><div class="c-lbl">Boys Hostel Total</div><div class="c-val" id="c-boys">—</div><div class="c-sub">Periyar · Amaravathi · Neyyar · Kedar</div></div>
+    <div class="card cg"><div class="c-lbl">Girls Hostel Total</div><div class="c-val" id="c-girls">—</div><div class="c-sub">Kabani · Alakananda · Pamba · Nila · Madhuvahini</div></div>
+    <div class="card ca"><div class="c-lbl">Daily Average</div><div class="c-val" id="c-avg">—</div><div class="c-sub">Meals per day</div></div>
+  </div>
+
+  <div class="sec-lbl">Trend Analysis</div>
+  <div class="panel">
+    <div class="panel-title">Daily Meal Count — All Hostels (Total)</div>
+    <canvas id="trendChart" height="130"></canvas>
+  </div>
+  <div class="chart-grid">
+    <div class="panel">
+      <div class="panel-title" style="color:#2b5fa6">Boys Hostel — Daily Trend</div>
+      <canvas id="boysTrendChart" height="175"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title" style="color:#8b3a6e">Girls Hostel — Daily Trend</div>
+      <canvas id="girlsTrendChart" height="175"></canvas>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="panel">
+      <div class="panel-title" style="color:#2b5fa6">Boys Hostel — Total per Hostel</div>
+      <canvas id="boysBarChart" height="100"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title" style="color:#8b3a6e">Girls Hostel — Total per Hostel</div>
+      <canvas id="girlsBarChart" height="100"></canvas>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Boys vs Girls vs Other — Overall Share</div>
+    <canvas id="pieChart" height="60"></canvas>
+  </div>
+
+  <div class="sec-lbl">Hostel-wise Summary</div>
+  <div class="hostel-grid">
+    <div class="panel" style="padding-bottom:14px">
+      <div class="hostel-hdr bh">Boys Hostel</div>
+      <table><thead><tr><th>Hostel</th><th>Total Meals</th><th>Share</th></tr></thead><tbody id="boys-tbody"></tbody></table>
+    </div>
+    <div class="panel" style="padding-bottom:14px">
+      <div class="hostel-hdr gh">Girls Hostel</div>
+      <table><thead><tr><th>Hostel</th><th>Total Meals</th><th>Share</th></tr></thead><tbody id="girls-tbody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="sec-lbl">Daily Complete Record</div>
+  <div class="panel">
+    <div class="daily-wrap">
+      <table class="dt">
+        <thead>
+          <tr>
+            <th rowspan="2" style="background:var(--text);color:#fff;vertical-align:bottom">Date</th>
+            <th colspan="4" class="bth" style="text-align:center">Boys Hostel</th>
+            <th colspan="6" class="gth" style="text-align:center">Girls Hostel</th>
+            <th colspan="2" class="oth" style="text-align:center">Other</th>
+            <th rowspan="2" style="background:var(--text);color:#fff;vertical-align:bottom">Total</th>
+          </tr>
+          <tr class="sub-hd">
+            <th>Periyar</th><th>Amaravathi</th><th>Neyyar</th><th>Kedar</th>
+            <th>Kabani</th><th>Alakananda</th><th>Pamba 1</th><th>Pamba 2</th><th>Nila</th><th>Madhuvahini</th>
+            <th>PG</th><th>DACE</th>
+          </tr>
+        </thead>
+        <tbody id="daily-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer>Suhur Meal Count Register &nbsp;|&nbsp; CU Kerala &nbsp;|&nbsp; Ramadan 1447 H &nbsp;|&nbsp; 19 Feb – 14 Mar 2026</footer>
+
+<script>
+const data=[
+  {date:"19 Feb",periyar:7,  amaravathi:45,neyyar:30,kedar:30,kabani:22,alakananda:30,pamba1:40,pamba2:16,nila:27,madhuvahini:49,pg:4, dace:0, total:300},
+  {date:"20 Feb",periyar:11, amaravathi:42,neyyar:30,kedar:28,kabani:22,alakananda:26,pamba1:35,pamba2:14,nila:22,madhuvahini:44,pg:3, dace:0, total:277},
+  {date:"22 Feb",periyar:13, amaravathi:40,neyyar:16,kedar:30,kabani:12,alakananda:21,pamba1:25,pamba2:12,nila:15,madhuvahini:21,pg:2, dace:0, total:207},
+  {date:"24 Feb",periyar:10, amaravathi:48,neyyar:20,kedar:37,kabani:19,alakananda:30,pamba1:42,pamba2:17,nila:24,madhuvahini:36,pg:5, dace:1, total:294},
+  {date:"25 Feb",periyar:9,  amaravathi:49,neyyar:20,kedar:37,kabani:21,alakananda:26,pamba1:43,pamba2:12,nila:22,madhuvahini:38,pg:4, dace:1, total:286},
+  {date:"26 Feb",periyar:9,  amaravathi:40,neyyar:25,kedar:39,kabani:10,alakananda:16,pamba1:25,pamba2:10,nila:19,madhuvahini:36,pg:3, dace:1, total:236},
+  {date:"27 Feb",periyar:9,  amaravathi:51,neyyar:20,kedar:39,kabani:10,alakananda:17,pamba1:33,pamba2:10,nila:16,madhuvahini:24,pg:3, dace:1, total:236},
+  {date:"28 Feb",periyar:6,  amaravathi:41,neyyar:20,kedar:30,kabani:10,alakananda:13,pamba1:25,pamba2:6, nila:14,madhuvahini:13,pg:3, dace:0, total:184},
+  {date:"01 Mar",periyar:6,  amaravathi:37,neyyar:15,kedar:25,kabani:5, alakananda:10,pamba1:21,pamba2:6, nila:13,madhuvahini:13,pg:3, dace:0, total:154},
+  {date:"02 Mar",periyar:6,  amaravathi:36,neyyar:12,kedar:25,kabani:5, alakananda:11,pamba1:20,pamba2:8, nila:12,madhuvahini:23,pg:3, dace:0, total:161},
+  {date:"03 Mar",periyar:7,  amaravathi:34,neyyar:15,kedar:32,kabani:8, alakananda:14,pamba1:27,pamba2:0, nila:12,madhuvahini:24,pg:3, dace:0, total:176},
+  {date:"04 Mar",periyar:10, amaravathi:32,neyyar:15,kedar:37,kabani:12,alakananda:18,pamba1:19,pamba2:8, nila:17,madhuvahini:21,pg:2, dace:0, total:191},
+  {date:"05 Mar",periyar:11, amaravathi:29,neyyar:20,kedar:40,kabani:12,alakananda:18,pamba1:22,pamba2:13,nila:15,madhuvahini:35,pg:0, dace:0, total:215},
+  {date:"06 Mar",periyar:9,  amaravathi:44,neyyar:20,kedar:41,kabani:13,alakananda:19,pamba1:24,pamba2:7, nila:11,madhuvahini:38,pg:0, dace:1, total:227},
+  {date:"07 Mar",periyar:9,  amaravathi:26,neyyar:15,kedar:27,kabani:8, alakananda:13,pamba1:19,pamba2:5, nila:8, madhuvahini:17,pg:2, dace:1, total:150},
+  {date:"08 Mar",periyar:9,  amaravathi:16,neyyar:20,kedar:27,kabani:13,alakananda:13,pamba1:22,pamba2:7, nila:0, madhuvahini:11,pg:2, dace:1, total:141},
+  {date:"09 Mar",periyar:10, amaravathi:31,neyyar:18,kedar:25,kabani:12,alakananda:13,pamba1:23,pamba2:7, nila:12,madhuvahini:13,pg:3, dace:1, total:168},
+  {date:"10 Mar",periyar:11, amaravathi:33,neyyar:20,kedar:35,kabani:11,alakananda:17,pamba1:29,pamba2:6, nila:13,madhuvahini:28,pg:5, dace:0, total:208},
+  {date:"11 Mar",periyar:0,  amaravathi:0, neyyar:0, kedar:0, kabani:16,alakananda:15,pamba1:30,pamba2:8, nila:14,madhuvahini:29,pg:4, dace:1, total:117},
+  {date:"12 Mar",periyar:0,  amaravathi:0, neyyar:0, kedar:0, kabani:13,alakananda:16,pamba1:32,pamba2:7, nila:16,madhuvahini:32,pg:4, dace:1, total:121},
+  {date:"14 Mar",periyar:0,  amaravathi:0, neyyar:0, kedar:0, kabani:9, alakananda:15,pamba1:20,pamba2:6, nila:8, madhuvahini:12,pg:1, dace:1, total:72},
+];
+
+const f={boys:["periyar","amaravathi","neyyar","kedar"],girls:["kabani","alakananda","pamba1","pamba2","nila","madhuvahini"],other:["pg","dace"]};
+const lb={periyar:"Periyar",amaravathi:"Amaravathi",neyyar:"Neyyar",kedar:"Kedar",kabani:"Kabani",alakananda:"Alakananda",pamba1:"Pamba 1",pamba2:"Pamba 2",nila:"Nila",madhuvahini:"Madhuvahini",pg:"Paying Guest",dace:"DACE"};
+
+const ht={};
+Object.keys(lb).forEach(h=>ht[h]=data.reduce((s,d)=>s+(d[h]||0),0));
+const bT=f.boys.reduce((s,h)=>s+ht[h],0);
+const gT=f.girls.reduce((s,h)=>s+ht[h],0);
+const oT=f.other.reduce((s,h)=>s+ht[h],0);
+const grand=data.reduce((s,d)=>s+d.total,0);
+const avg=Math.round(grand/data.length);
+
+document.getElementById("hdr-total").textContent=grand.toLocaleString();
+document.getElementById("c-grand").textContent=grand.toLocaleString();
+document.getElementById("c-boys").textContent=bT.toLocaleString();
+document.getElementById("c-girls").textContent=gT.toLocaleString();
+document.getElementById("c-avg").textContent=avg;
+
+Chart.defaults.color="#6b7266";
+Chart.defaults.font.family="'IBM Plex Sans',sans-serif";
+Chart.defaults.font.size=11;
+
+const lineOpts=(color)=>({responsive:true,plugins:{legend:{labels:{usePointStyle:true,pointStyleWidth:10}}},scales:{x:{ticks:{maxRotation:45},grid:{color:"#eaece5"}},y:{grid:{color:"#eaece5"}}}});
+
+new Chart(document.getElementById("trendChart"),{
+  type:"line",
+  data:{labels:data.map(d=>d.date),datasets:[{label:"Grand Total",data:data.map(d=>d.total),borderColor:"#1a6644",backgroundColor:"rgba(26,102,68,0.07)",borderWidth:2.5,tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:"#1a6644"}]},
+  options:lineOpts("#1a6644")
+});
+
+// Boys individual hostel lines
+new Chart(document.getElementById("boysTrendChart"),{
+  type:"line",
+  data:{
+    labels:data.map(d=>d.date),
+    datasets:[
+      {label:"Periyar",  data:data.map(d=>d.periyar),  borderColor:"#5b8fd4",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+      {label:"Amaravathi",data:data.map(d=>d.amaravathi),borderColor:"#2b5fa6",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+      {label:"Neyyar",   data:data.map(d=>d.neyyar),   borderColor:"#1a3d7a",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+      {label:"Kedar",    data:data.map(d=>d.kedar),    borderColor:"#0f2650",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+    ]
+  },
+  options:lineOpts("#2b5fa6")
+});
+
+// Girls individual hostel lines
+new Chart(document.getElementById("girlsTrendChart"),{
+  type:"line",
+  data:{
+    labels:data.map(d=>d.date),
+    datasets:[
+      {label:"Kabani",      data:data.map(d=>d.kabani),      borderColor:"#c97aaa",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+      {label:"Alakananda",  data:data.map(d=>d.alakananda),  borderColor:"#8b3a6e",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+      {label:"Pamba 1",     data:data.map(d=>d.pamba1),      borderColor:"#6b2454",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+      {label:"Pamba 2",     data:data.map(d=>d.pamba2),      borderColor:"#b05090",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+      {label:"Nila",        data:data.map(d=>d.nila),        borderColor:"#501840",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+      {label:"Madhuvahini", data:data.map(d=>d.madhuvahini), borderColor:"#d44fa0",borderWidth:1.8,tension:0.3,pointRadius:2,fill:false},
+    ]
+  },
+  options:lineOpts("#8b3a6e")
+});
+
+const barOpts=(colors)=>({responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:"#eaece5"}}}});
+new Chart(document.getElementById("boysBarChart"),{
+  type:"bar",
+  data:{labels:f.boys.map(h=>lb[h]),datasets:[{data:f.boys.map(h=>ht[h]),backgroundColor:["#5b8fd4","#2b5fa6","#1a3d7a","#0f2650"],borderRadius:4}]},
+  options:barOpts()
+});
+new Chart(document.getElementById("girlsBarChart"),{
+  type:"bar",
+  data:{labels:f.girls.map(h=>lb[h]),datasets:[{data:f.girls.map(h=>ht[h]),backgroundColor:["#c97aaa","#8b3a6e","#6b2454","#b05090","#501840","#d44fa0"],borderRadius:4}]},
+  options:barOpts()
+});
+
+new Chart(document.getElementById("pieChart"),{
+  type:"doughnut",
+  data:{labels:["Boys Hostel","Girls Hostel","Other"],datasets:[{data:[bT,gT,oT],backgroundColor:["#2b5fa6","#8b3a6e","#7a6230"],borderWidth:3,borderColor:"#fff"}]},
+  options:{responsive:true,plugins:{legend:{position:"right",labels:{usePointStyle:true,padding:20}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/grand*100)}%)`}},cutout:"60%"}
+});
+
+const bmax=Math.max(...f.boys.map(h=>ht[h]));
+document.getElementById("boys-tbody").innerHTML=f.boys.map(h=>{
+  const v=ht[h],p=Math.round((v/bmax)*100);
+  return `<tr><td class="h-name">${lb[h]}</td><td><span class="mono" style="color:#2b5fa6">${v}</span></td><td style="width:120px"><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${p}%;background:#2b5fa6"></div></div></div></td></tr>`;
+}).join("")+`<tr style="border-top:1px solid #dde0d8"><td style="font-size:11px;color:var(--muted);padding-top:10px">Boys Total</td><td><span class="mono" style="color:#2b5fa6">${bT}</span></td><td></td></tr>`;
+
+const gmax=Math.max(...f.girls.map(h=>ht[h]));
+document.getElementById("girls-tbody").innerHTML=f.girls.map(h=>{
+  const v=ht[h],p=Math.round((v/gmax)*100);
+  return `<tr><td class="h-name">${lb[h]}</td><td><span class="mono" style="color:#8b3a6e">${v}</span></td><td style="width:120px"><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${p}%;background:#8b3a6e"></div></div></div></td></tr>`;
+}).join("")+`<tr style="border-top:1px solid #dde0d8"><td style="font-size:11px;color:var(--muted);padding-top:10px">Girls Total</td><td><span class="mono" style="color:#8b3a6e">${gT}</span></td><td></td></tr>`;
+
+const maxT=Math.max(...data.map(d=>d.total));
+const minT=Math.min(...data.map(d=>d.total));
+const cols=["periyar","amaravathi","neyyar","kedar","kabani","alakananda","pamba1","pamba2","nila","madhuvahini","pg","dace"];
+document.getElementById("daily-tbody").innerHTML=data.map((d,i)=>{
+  const badge=d.total===maxT?`<span class="badge bpeak">Peak</span>`:d.total===minT?`<span class="badge blow">Low</span>`:"";
+  return `<tr style="background:${i%2===0?"#fff":"#fafbf8"}">
+    <td><strong>${d.date}</strong></td>
+    ${cols.map(c=>`<td>${d[c]}</td>`).join("")}
+    <td class="totcell">${d.total}${badge}</td>
+  </tr>`;
+}).join("")+`<tr class="tot-row"><td>TOTAL</td>${cols.map(c=>`<td>${ht[c]}</td>`).join("")}<td>${grand}</td></tr>`;
+</script>
+</body>
+</html>
